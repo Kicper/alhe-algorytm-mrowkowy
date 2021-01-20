@@ -29,11 +29,11 @@ def read_file():
 
 def ant_algorithm():
     
-    ants_number = 10
+    ants_number = 100
     alpha = 1.0
     beta = 1.0
     pheromone_level = 1.0
-    max_iters = 10
+    max_iters = 5
     pheromone_evaporation = 0.1
     source_coords, destination_coords = "Vancouver", "Houston"
 

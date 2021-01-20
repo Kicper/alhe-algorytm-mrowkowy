@@ -20,44 +20,49 @@ def ant_colony_optimization(graph: nx.Graph, source, destination, m, alpha, beta
         # array of lost ants
         ants_lost = []
         # until every ant reach destination:
-        while ants_in_destination + len(ants_lost) != m:
+        iter = 0
+        print(ants)
+        for ant in ants:
+            # while ants_in_destination + len(ants_lost) != m:
             # update_pheromones
-            iter = 0
-            
-            for ant in ants:
-                iter = iter + 1
-                if not ant.has_reached_destination():
-                    # visit new vertex
-                    # if ant starting from source
-                    if not ant.get_visited_vertices():
-                        ant.set_visited(source)
-                    current_vertex = ant.get_visited_vertices()[-1]
-                    adjacent_data = get_allowed_vertices_data(graph, current_vertex, ant.get_visited_vertices())
+            iter = iter + 1
+            #print(iter)
+            while not ant.has_reached_destination():
+                # visit new vertex
+                # if ant starting from source
+                if not ant.get_visited_vertices():
+                    ant.set_visited(source)
+                current_vertex = ant.get_visited_vertices()[-1]
+                adjacent_data = get_allowed_vertices_data(graph, current_vertex, ant.get_visited_vertices())
 
-
-                    if not adjacent_data:
-                        if ant not in ants_lost:
-                            ants_lost.append(ant)
-                        continue
-                    if(i >= 3):
-                        next_vertex = pick_next_vertex(alpha, beta, current_vertex, adjacent_data)
-                    else:
-                        next_vertex = pick_next_vertex_random(alpha, beta, current_vertex, adjacent_data)
-                    # print(f'ant {ants.index(ant)}\nnext vertex: {next_vertex}\n')
-                    ant.set_visited(next_vertex)
-                    if adjacent_data:
-                        print_everything(graph, ant, iter, i)
-                    # if ant has reached destination
-                    if next_vertex == destination:
-                        ant.reach_destination()
-                        ants_in_destination += 1
-                        solution = ant.get_visited_vertices()
-                        solution_length = get_path_length(graph, solution)
-                        current_best_solution, current_best_distance = set_best_solution(current_best_solution,
-                                                                                            current_best_distance,
-                                                                                            solution, solution_length)
+                if not adjacent_data:
+                    if ant not in ants_lost:
+                        ants_lost.append(ant)
+                    #print(" ANT IS LOST! ", end="\t")
+                    #print(ants_lost)
+                    break
+                if(i >= 3):
+                    next_vertex = pick_next_vertex(alpha, beta, current_vertex, adjacent_data)
+                else:
+                    next_vertex = pick_next_vertex_random(alpha, beta, current_vertex, adjacent_data)
+                # print(f'ant {ants.index(ant)}\nnext vertex: {next_vertex}\n')
+                ant.set_visited(next_vertex)
+                #print(ant)
+                #print(ant.get_visited_vertices())
+                #if adjacent_data:
+                #    print_everything(graph, ant, iter, i)
+                # if ant has reached destination
+                if next_vertex == destination:
+                    #print(" DESTINATION! ")
+                    ant.reach_destination()
+                    ants_in_destination += 1
+                    solution = ant.get_visited_vertices()
+                    solution_length = get_path_length(graph, solution)
+                    current_best_solution, current_best_distance = set_best_solution(current_best_solution,
+                                                                                        current_best_distance,
+                                                                                        solution, solution_length)
                         # print(f'Ant {ants.index(ant)}, solution: {solution}, and best: {current_best_solution}\n')
-            local_pheromone_update(graph, ants, starting_pheromone_level, evaporation_coeff, ants_lost)
+        local_pheromone_update(graph, ants, starting_pheromone_level, evaporation_coeff, ants_lost)
         # global_pheromone_update(graph) # todo
     solution = current_best_solution
     print_pheromone(graph)
@@ -71,12 +76,16 @@ def print_everything(g: nx.Graph, ant, iter, i):
     print(ant.get_visited_vertices()[-2])
     print(ant.get_visited_vertices()[-1])
     print(g[ant.get_visited_vertices()[-2]][ant.get_visited_vertices()[-1]]['pheromone'])
-    print("")
+    print()
 
 
 def print_pheromone(graph: nx.Graph):
-    for e in graph.edges:
-        print(graph.edges[e]['pheromone'])
+    for i in graph.nodes:
+        for j in graph.nodes:
+            if graph.has_edge(i, j):
+                print(i, end="\t")
+                print(j, end="\t")
+                print(graph[i][j]['pheromone'])
 
 
 def get_allowed_vertices_data(graph: nx.Graph, source, visited):
@@ -104,7 +113,7 @@ def pick_next_vertex_random(alpha, beta, current, adj_data):
     next_vertex = current
 
     rand = random.randint(0, 3)
-    if(rand < 1):
+    if(rand < 2):
         rand_vertex = random.randint(1, len(adj_data))
         i = 0
         for vertex in adj_data:
@@ -125,7 +134,7 @@ def get_vertex_probability(destination, edges_data, alpha, beta):
     probability_numerator = edges_data[destination]['pheromone']**(alpha) * (1.0 / edges_data[destination]['cost'])**(beta)
     denominator_data = {}
     for end_vertex, edge in edges_data.items():
-        denominator_data[end_vertex] = edge['pheromone'] **(alpha) * (1.0 / edge['cost'])**(beta)
+        denominator_data[end_vertex] = edge['pheromone']**(alpha) * (1.0 / edge['cost'])**(beta)
     probability_denominator = sum(denominator_data.values())
     choice_probability = probability_numerator / probability_denominator
     return choice_probability
@@ -159,15 +168,23 @@ def reset_ants(ants: List[Ant]):
     return ants, ants_in_destination
 
 
-def local_pheromone_update(graph: nx.Graph, ants: List[Ant], starting_pheromone, evaporation, ants_lost):
+def local_pheromone_update(graph: nx.Graph, ants, starting_pheromone, evaporation, ants_lost):
     for ant in ants:
         if(ant not in ants_lost):
             for i in range(len(ant.get_visited_vertices())-1):
                 
                 last_pheromone_level = graph[ant.get_visited_vertices()[i]][ant.get_visited_vertices()[i+1]]['pheromone']
-                amount_of_pheromone = 20/len(ant.get_visited_vertices())
+                amount_of_pheromone = 1000/len(ant.get_visited_vertices())
                 new_pheromone_level = (1.0 - evaporation)*last_pheromone_level + evaporation*amount_of_pheromone
                 graph[ant.get_visited_vertices()[i]][ant.get_visited_vertices()[i+1]]['pheromone'] = new_pheromone_level
+
+                #print("")
+                #print(ant)
+                #print(ant.get_visited_vertices()[i])
+                #print(ant.get_visited_vertices()[i+1])
+                #print(last_pheromone_level)
+                #print(amount_of_pheromone)
+                #print(new_pheromone_level)
     return
 
 
