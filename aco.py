@@ -12,6 +12,7 @@ def ant_colony_optimization(graph: nx.Graph, source, destination, m, alpha, beta
     # pheromone level and ants init
     graph, ants = init_environment(graph, m, starting_pheromone_level)
     print_pheromone(graph)
+    print("\n\n")
     current_best_solution = []
     current_best_distance = math.inf
     # or while convergence_met(): # todo
@@ -60,7 +61,9 @@ def ant_colony_optimization(graph: nx.Graph, source, destination, m, alpha, beta
     solution = current_best_solution
     print_pheromone(graph)
     # solution based on pheromone path
-    #result = solution_pheromone(source, destination, graph)
+    result = solution_pheromone(source, destination, graph)
+    print("Best solution based on pheromone trail:")
+    print(result)
     return solution
 
 
@@ -79,7 +82,7 @@ def print_pheromone(graph: nx.Graph):
         for j in graph.nodes:
             if graph.has_edge(i, j):
                 print(i, end="\t")
-                print(j, end="\t")
+                print(j, end="\t")  
                 print(graph[i][j]['pheromone'])
 
 
@@ -186,7 +189,7 @@ def global_pheromone_update(graph: nx.Graph, ants, starting_pheromone, evaporati
             # from here
             sum_distance = 0
             for i in range(len(ant.get_visited_vertices())-1):
-                print(graph[ant.get_visited_vertices()[i]][ant.get_visited_vertices()[i+1]]['cost'])
+                #print(graph[ant.get_visited_vertices()[i]][ant.get_visited_vertices()[i+1]]['cost'])
                 sum_distance = sum_distance + graph[ant.get_visited_vertices()[i]][ant.get_visited_vertices()[i+1]]['cost']
             # to here
             for i in range(len(ant.get_visited_vertices())-1):
@@ -209,19 +212,17 @@ def solution_pheromone(source, destination, graph):
     temp = source
     path = []
     path.append(source)
-    while(graph.nodes[temp] != "destination"):
-        print(path)
+    while(temp != destination):
+        max = 0
+        next_node = 0
         for adjacent in graph.adj[temp]:
-            max = 0
-            next_node = 0
             if adjacent not in path:
-                if max < graph[temp][adjacent]['cost']:
-                    max = graph[temp][adjacent]['cost']
+                if max < graph[temp][adjacent]['pheromone']:
+                    max = graph[temp][adjacent]['pheromone']
                     next_node = adjacent
         if max == 0:
-            return "error"
+            return "Pheromone trail doesn't work"
         else:
             path.append(next_node)
-    print("The shortest path to destination:")
-    print(path)
+        temp = next_node
     return path
