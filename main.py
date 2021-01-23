@@ -29,15 +29,16 @@ def read_file():
 
 def ant_algorithm():
     
-    ants_number = 100
+    ants_number = 2
     alpha = 1.0
     beta = 1.0
     pheromone_level = 1.0
-    max_iters = 5
+    max_iters = 10
     pheromone_evaporation = 0.1
     source_coords, destination_coords = "Vancouver", "Houston"
 
     solution = ant_colony_optimization(G, source_coords, destination_coords, ants_number, alpha, beta, pheromone_level, pheromone_evaporation, max_iters)
+    # this one is quickest path which one ant has travelled
     print("Solution: ")
     print(solution)
 
