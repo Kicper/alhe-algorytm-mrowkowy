@@ -1,13 +1,14 @@
 import networkx as nx
 import math
 from aco import ant_colony_optimization
+import sys
 
 
 G = nx.Graph()
 
 
-def read_file():
-    with open( 'input.txt', 'r' ) as file:
+def read_file(filename: str):
+    with open( filename, 'r' ) as file:
         line = file.readline()
         while( "NODES" not in line ):
             line = file.readline()
@@ -43,9 +44,9 @@ def ant_algorithm():
     print(solution)
 
 
-def main():
-    read_file()
-    ant_algorithm()
-
-
-main()
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        read_file(sys.argv[1])
+        ant_algorithm()
+    else:
+        print("NO INPUT FILE\nEXIT", file=sys.stderr)
