@@ -1,38 +1,13 @@
 import networkx as nx
 import math
 
+
+
 G = nx.Graph()
 
-def read_file():
-    with open( 'input.txt', 'r' ) as file:
-        line = file.readline()
-        while( "NODES" not in line ):
-            line = file.readline()
-        line = file.readline()
-        splitted = line.split()
-        while( ")" not in splitted[0] ):
-            G.add_node(splitted[0], longitude=float(splitted[2]), latitude=float(splitted[3]), real_cost=float('inf'), tentative_cost=float('inf'), prev_node="")
-            line = file.readline()
-            splitted = line.split()
-        while( "LINKS" not in line ):
-            line = file.readline()
-        line = file.readline()
-        splitted = line.split()
-        while( ")" not in splitted[0] ):
-            G.add_edge(splitted[2], splitted[3], cost=float(splitted[11]))
-            line = file.readline()
-            splitted = line.split()
 
 
-def get_user_input():
-    print("Enter starting node:")
-    start_node = input() 
-    print("Enter destination node:")
-    destination_node = input()
-    return start_node, destination_node
-
-
-def get_path(start, end):
+def get_path(G, start, end):
     temp = end
     path = []
     while( G.nodes[temp]['prev_node'] != ""):
@@ -44,7 +19,7 @@ def get_path(start, end):
     print(path)
 
 
-def heuristic(start, end):
+def heuristic(G, start, end):
     x1 = G.nodes[start]['longitude']
     y1 = G.nodes[start]['latitude']
     x2 = G.nodes[end]['longitude']
@@ -52,9 +27,9 @@ def heuristic(start, end):
     return math.sqrt( (x2-x1)**2 + (y2-y1)**2 )
 
 
-def A_star(start, end):
+def A_star(G, start, end):
     G.nodes[start]['real_cost'] = 0
-    G.nodes[start]['tentative_cost'] = G.nodes[start]['real_cost'] + heuristic(start, end)
+    G.nodes[start]['tentative_cost'] = G.nodes[start]['real_cost'] + heuristic(G, start, end)
     if(start == end):
         print("Starting node is destination one!")
         return
@@ -66,7 +41,7 @@ def A_star(start, end):
 
     for i in G.neighbors(curr_node):
         G.nodes[i]['real_cost'] = G.nodes[curr_node]['real_cost'] + G[curr_node][i]['cost']
-        G.nodes[i]['tentative_cost'] = G.nodes[i]['real_cost'] + heuristic(i, end)
+        G.nodes[i]['tentative_cost'] = G.nodes[i]['real_cost'] + heuristic(G, i, end)
 
     while(to_visit != []):
         min = float('inf')
@@ -79,7 +54,7 @@ def A_star(start, end):
         to_visit.remove(curr_node)
         visited.append(curr_node)
         if(curr_node == end):
-            get_path(start, end)
+            get_path(G, start, end)
             break
 
         for i in G.neighbors(curr_node):
@@ -87,17 +62,8 @@ def A_star(start, end):
                 to_visit.append(i)
             if(i not in visited):
                 real_cost = G.nodes[curr_node]['real_cost'] + G[curr_node][i]['cost']
-                tentative_cost = real_cost + heuristic(i, end)
+                tentative_cost = real_cost + heuristic(G, i, end)
                 if( tentative_cost < G.nodes[i]['tentative_cost'] ):
                     G.nodes[i]['tentative_cost'] = tentative_cost
                     G.nodes[i]['real_cost'] = real_cost
                     G.nodes[i]['prev_node'] = curr_node
-                    
-
-def main():
-    read_file()
-    start, end = "Vancouver", "Houston" #get_user_input()
-    A_star(start, end)
-
-
-main()

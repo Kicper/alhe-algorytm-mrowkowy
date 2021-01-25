@@ -1,6 +1,7 @@
 import networkx as nx
 import math
 from aco import ant_colony_optimization
+from algorithm_A import A_star
 import sys
 
 
@@ -28,7 +29,7 @@ def read_file(filename: str):
             splitted = line.split()
 
 
-def ant_algorithm():
+def ant_algorithm(source, destination):
     
     ants_number = 10
     alpha = 1.0
@@ -36,7 +37,7 @@ def ant_algorithm():
     pheromone_level = 1.0
     max_iters = 10
     pheromone_evaporation = 0.1
-    source_coords, destination_coords = "Vancouver", "Houston"
+    source_coords, destination_coords = source, destination
 
     solution = ant_colony_optimization(G, source_coords, destination_coords, ants_number, alpha, beta, pheromone_level, pheromone_evaporation, max_iters)
     # this one is quickest path which one ant has travelled
@@ -47,6 +48,10 @@ def ant_algorithm():
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         read_file(sys.argv[1])
-        ant_algorithm()
+        source, destination = "Vancouver", "Houston"
+        ant_algorithm(source, destination)
+        A_star(G, source, destination)
+        print(nx.shortest_path(G, source=source, target=destination, weight='cost', method='dijkstra'))
+        print(nx.shortest_path(G, source=source, target=destination, weight='cost', method='bellman-ford'))
     else:
         print("NO INPUT FILE\nEXIT", file=sys.stderr)
