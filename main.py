@@ -3,7 +3,7 @@ import math
 from aco import ant_colony_optimization
 from algorithm_A import A_star
 import sys
-
+from tests import perform_tests
 
 G = nx.Graph()
 
@@ -48,10 +48,12 @@ def ant_algorithm(source, destination):
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         read_file(sys.argv[1])
-        source, destination = "Vancouver", "Houston"
-        ant_algorithm(source, destination)
-        A_star(G, source, destination)
-        print(nx.shortest_path(G, source=source, target=destination, weight='cost', method='dijkstra'))
-        print(nx.shortest_path(G, source=source, target=destination, weight='cost', method='bellman-ford'))
+        tests = perform_tests(G)
+        # to uncomment below
+        # source, destination = "Vancouver", "Houston"
+        # ant_algorithm(source, destination)
+        # A_star(G, source, destination)
+        # print(nx.shortest_path(G, source=source, target=destination, weight='cost', method='dijkstra'))
+        # print(nx.shortest_path(G, source=source, target=destination, weight='cost', method='bellman-ford'))
     else:
         print("NO INPUT FILE\nEXIT", file=sys.stderr)

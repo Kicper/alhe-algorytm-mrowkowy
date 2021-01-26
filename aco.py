@@ -11,8 +11,8 @@ from ant import Ant
 def ant_colony_optimization(graph: nx.Graph, source, destination, m, alpha, beta, starting_pheromone_level, evaporation_coeff, iters):
     # pheromone level and ants init
     graph, ants = init_environment(graph, m, starting_pheromone_level)
-    print_pheromone(graph)
-    print("\n\n")
+    # print_pheromone(graph)
+    # print("\n\n")
     current_best_solution = []
     current_best_distance = math.inf
     # or while convergence_met(): # todo
@@ -59,7 +59,7 @@ def ant_colony_optimization(graph: nx.Graph, source, destination, m, alpha, beta
                         # print(f'Ant {ants.index(ant)}, solution: {solution}, and best: {current_best_solution}\n')
         global_pheromone_update(graph, ants, starting_pheromone_level, evaporation_coeff, ants_lost)
     solution = current_best_solution
-    print_pheromone(graph)
+    # print_pheromone(graph)
     # solution based on pheromone path
     result = solution_pheromone(source, destination, graph)
     print("Best solution based on pheromone trail:")
@@ -100,48 +100,23 @@ def pick_next_vertex(alpha, beta, current, adj_data, iter, iters):
     next_vertex = current
 
     # first 20% of iterations is rand on 50%
-    if(iter < iters/5):
+    if iter < iters/5:
         rand = random.randint(0, 10)
-        if(rand < 5):
-            rand_vertex = random.randint(1, len(adj_data))
-            i = 0
-            for vertex in adj_data:
-                i = i + 1
-                if(i == rand_vertex):
-                    next_vertex = vertex
-                    return next_vertex
-        else:
-            for vertex in adj_data:
-                vertex_prob = get_vertex_probability(vertex, adj_data, alpha, beta)
-                if vertex_prob > highest_probability:
-                    highest_probability = vertex_prob
-                    next_vertex = vertex
-            return next_vertex
+        if rand < 5:
+            rand_vertex = random.choice(list(adj_data.keys()))
+            return rand_vertex
     # then 13,3% of iterations is rand on 30%
-    elif(iter < iters/3):
+    elif iter < iters/3:
         rand = random.randint(0, 10)
-        if(rand < 3):
-            rand_vertex = random.randint(1, len(adj_data))
-            i = 0
-            for vertex in adj_data:
-                i = i + 1
-                if(i == rand_vertex):
-                    next_vertex = vertex
-                    return next_vertex
-        else:
-            for vertex in adj_data:
-                vertex_prob = get_vertex_probability(vertex, adj_data, alpha, beta)
-                if vertex_prob > highest_probability:
-                    highest_probability = vertex_prob
-                    next_vertex = vertex
-            return next_vertex
-    else:
-        for vertex in adj_data:
-            vertex_prob = get_vertex_probability(vertex, adj_data, alpha, beta)
-            if vertex_prob > highest_probability:
-                highest_probability = vertex_prob
-                next_vertex = vertex
-        return next_vertex
+        if rand < 3:
+            rand_vertex = random.choice(list(adj_data.keys()))
+            return rand_vertex
+    for vertex in adj_data:
+        vertex_prob = get_vertex_probability(vertex, adj_data, alpha, beta)
+        if vertex_prob > highest_probability:
+            highest_probability = vertex_prob
+            next_vertex = vertex
+    return next_vertex
 
 
 def get_vertex_probability(destination, edges_data, alpha, beta):
