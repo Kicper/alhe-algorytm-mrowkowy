@@ -2,9 +2,7 @@ import networkx as nx
 import math
 
 
-
 G = nx.Graph()
-
 
 
 def get_path(G, start, end):
@@ -15,7 +13,6 @@ def get_path(G, start, end):
         temp = G.nodes[temp]['prev_node']
     path.insert(0, temp)
     path.insert(0, start)
-    print("The shortest path to destination:")
     print(path)
 
 

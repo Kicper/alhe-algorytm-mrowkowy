@@ -11,11 +11,8 @@ from ant import Ant
 def ant_colony_optimization(graph: nx.Graph, source, destination, m, alpha, beta, starting_pheromone_level, evaporation_coeff, iters):
     # pheromone level and ants init
     graph, ants = init_environment(graph, m, starting_pheromone_level)
-    # print_pheromone(graph)
-    # print("\n\n")
     current_best_solution = []
     current_best_distance = math.inf
-    # or while convergence_met(): # todo
     for i in range(iters):
         ants, ants_in_destination = reset_ants(ants)
         # array of lost ants
@@ -23,10 +20,8 @@ def ant_colony_optimization(graph: nx.Graph, source, destination, m, alpha, beta
         # until every ant reach destination:
         iter = 0
         for ant in ants:
-            # while ants_in_destination + len(ants_lost) != m:
             # update_pheromones
             iter = iter + 1
-            #print(iter)
             while not ant.has_reached_destination():
                 # visit new vertex
                 # if ant starting from source
@@ -38,17 +33,10 @@ def ant_colony_optimization(graph: nx.Graph, source, destination, m, alpha, beta
                 if not adjacent_data:
                     if ant not in ants_lost:
                         ants_lost.append(ant)
-                    #print(" ANT IS LOST! ", end="\t")
-                    #print(ants_lost)
                     break
                 next_vertex = pick_next_vertex(alpha, beta, current_vertex, adjacent_data, i, iters)
-                # print(f'ant {ants.index(ant)}\nnext vertex: {next_vertex}\n')
                 ant.set_visited(next_vertex)
-                #if adjacent_data:
-                #    print_everything(graph, ant, iter, i)
-                # if ant has reached destination
                 if next_vertex == destination:
-                    #print(" DESTINATION! ")
                     ant.reach_destination()
                     ants_in_destination += 1
                     solution = ant.get_visited_vertices()
@@ -56,10 +44,8 @@ def ant_colony_optimization(graph: nx.Graph, source, destination, m, alpha, beta
                     current_best_solution, current_best_distance = set_best_solution(current_best_solution,
                                                                                         current_best_distance,
                                                                                         solution, solution_length)
-                        # print(f'Ant {ants.index(ant)}, solution: {solution}, and best: {current_best_solution}\n')
         global_pheromone_update(graph, ants, starting_pheromone_level, evaporation_coeff, ants_lost)
     solution = current_best_solution
-    # print_pheromone(graph)
     # solution based on pheromone path
     result = solution_pheromone(source, destination, graph)
     print("Best solution based on pheromone trail:")
@@ -111,6 +97,7 @@ def pick_next_vertex(alpha, beta, current, adj_data, iter, iters):
         if rand < 3:
             rand_vertex = random.choice(list(adj_data.keys()))
             return rand_vertex
+    # if not random choice
     for vertex in adj_data:
         vertex_prob = get_vertex_probability(vertex, adj_data, alpha, beta)
         if vertex_prob > highest_probability:
@@ -164,11 +151,9 @@ def global_pheromone_update(graph: nx.Graph, ants, starting_pheromone, evaporati
             # from here
             sum_distance = 0
             for i in range(len(ant.get_visited_vertices())-1):
-                #print(graph[ant.get_visited_vertices()[i]][ant.get_visited_vertices()[i+1]]['cost'])
                 sum_distance = sum_distance + graph[ant.get_visited_vertices()[i]][ant.get_visited_vertices()[i+1]]['cost']
             # to here
             for i in range(len(ant.get_visited_vertices())-1):
-                
                 last_pheromone_level = graph[ant.get_visited_vertices()[i]][ant.get_visited_vertices()[i+1]]['pheromone']
                 # case when shotrest path is that one which has the least amount of nodes:
                 # from here
